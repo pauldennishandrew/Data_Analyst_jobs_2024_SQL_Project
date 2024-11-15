@@ -111,15 +111,7 @@ Limit 5
 
 
 ```
-
-SQL is the most in demand skill, followed by Excel, Python, Tableau, and Power BI.
-
-| Skill      | Demand Count |
-|------------|--------------|
-| SQL        | 7,291        |
-| Excel      | 4,611        |
-| Python     | 4,330        |
-| Tableau    | 3,745        |
+![optimal_skills](data_assets/3_top_demanded_skills.png)
 | Power BI   | 2,609        |
 
 ### 4. Top Skills Based on Salary
@@ -165,18 +157,7 @@ Here's a breakdown of the top-paying skills for data analysts:
 
 *Note: While skills like Bitbucket, Couchbase, and Watson are high-paying, they are less directly related to typical data analyst functions compared to the skills listed above.*
 
-| Skill        | Average Salary |
-|--------------|----------------|
-| PySpark      | $208,172       |
-| Bitbucket    | $189,155       |
-| Couchbase    | $160,515       |
-| Watson       | $160,515       |
-| DataRobot    | $155,486       |
-| GitLab       | $154,500       |
-| Swift        | $153,750       |
-| Jupyter      | $152,777       |
-| Pandas       | $151,821       |
-| Elasticsearch| $145,000       |
+![optimal_skills](data_assets/4_top_paying_skills.png)
 
 *Table of the top 10 skills based on the average salary*
 
@@ -229,54 +210,13 @@ order by
 limit 25;
 
 ```
-![optimal_skills]("D:\SQL_PROJECT_JOB_ANALYSIS\pictures\Screenshot 2024-11-15 130501.png")
+![optimal_skills](data_assets/5_optimal_skills.png)
 
 *Table of the most optimal skills for Data Analysts, sorted by salary* 
 
 The most optimal skills for data analysts include Go, Confluence, Hadoop, Snowflake, Azure, BigQuery, AWS, Java, SSIS, and Jira. These skills have strong demand, with Go leading in both demand and average salary at $115,320. Specialized tools like Snowflake and BigQuery also command high salaries, highlighting the value of cloud and data management expertise in the job market. Proficiency in programming languages like Java and expertise in AWS and Azure are similarly rewarding for data professionals.
 
-### 6. Top-Paying Data Analyst Jobs in Tampa, FL
 
-This query is like the very first one, but instead of remote positions I wanted to find job postings in Tampa, FL since I live close by 😀
-
-```sql
-SELECT
-    job_id,
-    job_title,
-    job_location,
-    job_schedule_type,
-    salary_year_avg,
-    job_posted_date,
-    name AS company_name
-FROM
-    job_postings_fact
-LEFT JOIN company_dim
-    ON job_postings_fact.company_id = company_dim.company_id
-WHERE
-    job_title_short = 'Data Analyst' AND
-    job_location = 'Tampa, FL' AND
-    salary_year_avg IS NOT NULL
-ORDER BY
-    salary_year_avg DESC
-LIMIT 10;
-```
-
-| Job Title                                                                 | Average Salary |
-|---------------------------------------------------------------------------|----------------|
-| SVP, Credit Risk Digital Transformation Senior Business/Data Analyst    | $188,675        |
-| ICM CCR Data Analyst                                                       | $150,000        |
-| Digital Marketing Data Analyst (Hybrid)                                    | $138,640        |
-| Data Analyst. Job in Tampa NBC4i Jobs                                      | $137,610        |
-| Data Analyst                                                                | $137,610        |
-| ICM CCR Data Analyst                                                        | $137,610        |
-| Data Management Lead Analyst (Hybrid)                                       | $137,610        |
-| Data Analyst                                                                | $137,610        |
-| Data Analyst. Job in Tampa LilyLifestyle Jobs                               | $137,610        |
-| Vice President - Lead AML Data Science Analyst- Hybrid                      | $132,315        |
-
-*Chart displaying the highest paying Data Analyst jobs in Tampa, FL in 2023*
-
-Fun fact: Most of these jobs were offered by Citi
 
 # Insights
 1. **Top-Paying Data Analyst Jobs:** The highest-paying jobs for data analysts that allow remote work, the highest at $650,000!
