@@ -5,7 +5,7 @@ Shortcut to all the SQL queries used:
 [project_sql folder](/project_sql/)
 
 # Background
-As an aspiring data analyst, I wanted to dive deeper into SQL and add another project to my portfolio. Shout out to Luke Barousse and his course "SQL for Data Analytics" for the guidance and inspiration.
+As an aspiring data analyst, I wanted to dive deeper into SQL and add a Capstone project to my portfolio. 
 
 ### The questions I wanted to answer through my SQL queries were:
 
