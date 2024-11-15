@@ -92,7 +92,7 @@ order by
 *Bar graph visualizing the skill count for the top ten paying data analyst roles*
 
 ### 3. In Demand Skills for Data Analysts
-This query identifies the top 5 most frequently requested skills in job postings.
+This query identifies the top most frequently requested skills in job postings.
 
 ```sql
 select skills AS SKILL_NAME,
