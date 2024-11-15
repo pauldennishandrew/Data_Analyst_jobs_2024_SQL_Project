@@ -29,25 +29,24 @@ For this project, each query was designed to explore specific aspects of the Dat
 To identify the highest-paying roles, I filtered data analyst positions by average yearly salary and location, focusing on remote jobs. This query highlights the high paying opportunities in the data field.
 
 ```sql
-SELECT
-    job_id,
-    job_title,
-    job_location,
-    job_schedule_type,
-    salary_year_avg,
-    job_posted_date,
-    name AS company_name
-FROM
-    job_postings_fact
-LEFT JOIN company_dim
-    ON job_postings_fact.company_id = company_dim.company_id
+select 
+        job_id,
+        job_title,
+        job_location, 
+        job_schedule_type,
+        salary_year_avg,
+        job_posted_date::DATE,
+        name as comapany_name
+from 
+        job_postings_fact
+LEFT JOIN company_dim ON 
+          job_postings_fact.company_id=  company_dim.company_id 
 WHERE
-    job_title_short = 'Data Analyst' AND
-    job_location = 'Anywhere' AND
-    salary_year_avg IS NOT NULL
-ORDER BY
-    salary_year_avg DESC
-LIMIT 10;
+        job_title_short ='Data Analyst' and 
+        job_work_from_home = 'True' AND 
+        salary_year_avg is not NULL
+ORDER BY salary_year_avg DESC
+LIMIT 15;
 ```
 The top 10 data analyst jobs in 2023 showcase a diverse range of roles with competitive salaries, starting with Mantys offering a Data Analyst position with an extraordinary salary of $650,000, likely reflecting a highly specialized or senior-level role. Meta follows with a Director of Analytics at $336,500, indicating a leadership position in a top tech company. AT&T offers an Associate Director- Data Insights role for $255,829.50, emphasizing data strategy and insights. 
 
@@ -62,33 +61,32 @@ Other notable roles include Director, Data Analyst (Hybrid) at Inclusively for $
 Building on what I learned in the previous query, I joined the job postings data with the skills data to discover what skills are required for these top-paying jobs. *Important note - The two highest paying jobs from the previous query results are **not** in these results because the associated skills were not provided in the data (i.e. NULL values)*
 
 ```sql
-WITH top_paying_jobs AS (
-    SELECT
-        job_id,
-        job_title,
-        salary_year_avg,
-        name AS company_name
-    FROM
-        job_postings_fact
-    LEFT JOIN company_dim
-        ON job_postings_fact.company_id = company_dim.company_id
+with top_paying_jobs as(
+     select 
+            job_id,
+            job_title,
+            salary_year_avg,
+            name as comapany_name
+    from 
+            job_postings_fact
+    LEFT JOIN company_dim ON 
+            job_postings_fact.company_id=  company_dim.company_id 
     WHERE
-        job_title_short = 'Data Analyst' AND
-        job_location = 'Anywhere' AND
-        salary_year_avg IS NOT NULL
-    ORDER BY
-        salary_year_avg DESC
-    LIMIT 10
+            job_title_short ='Data Analyst' and 
+            job_work_from_home = 'True' AND 
+            salary_year_avg is not NULL
+    ORDER BY salary_year_avg DESC
+    LIMIT 15
 )
 
-SELECT
-    top_paying_jobs.*,
-    skills
-FROM top_paying_jobs
-INNER JOIN skills_job_dim ON top_paying_jobs.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-ORDER BY    
-    salary_year_avg DESC
+select top_paying_jobs.*,
+        skills
+from top_paying_jobs
+inner join skills_job_dim on skills_job_dim.job_id=top_paying_jobs.job_id
+inner join skills_dim on skills_dim.skill_id=skills_job_dim.skill_id
+order by
+         salary_year_avg DESC
+
 ```
 ![Skill Count](assets/2_skill_count.png)
 *Bar graph visualizing the skill count for the top ten paying data analyst roles*
@@ -97,20 +95,21 @@ ORDER BY
 This query identifies the top 5 most frequently requested skills in job postings.
 
 ```sql
-SELECT
-    skills,
-    COUNT(skills_job_dim.job_id) AS demand_count
-FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-WHERE
-    job_title_short = 'Data Analyst' AND
-    job_work_from_home = TRUE
+select skills AS SKILL_NAME,
+        count(skills_job_dim.job_id) AS DEMAND_COUNT
+from 
+    job_postings_fact
+inner join skills_job_dim on skills_job_dim.job_id=job_postings_fact.job_id
+inner join skills_dim on skills_dim.skill_id=skills_job_dim.skill_id
+where
+     job_title_short ='Data Analyst'
 GROUP BY
-    skills
-ORDER BY
-    demand_count DESC
-LIMIT 5
+     skills
+order by 
+    DEMAND_COUNT DESC
+Limit 5
+
+
 ```
 
 SQL is the most in demand skill, followed by Excel, Python, Tableau, and Power BI.
@@ -127,21 +126,19 @@ SQL is the most in demand skill, followed by Excel, Python, Tableau, and Power B
 This query calculates the average salary for each skill to identify which skills offer the highest pay.
 
 ```sql
-SELECT
-    skills,
-    ROUND(AVG(salary_year_avg), 0) AS avg_salary
-FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-WHERE
-    job_title_short = 'Data Analyst' AND
-    salary_year_avg IS NOT NULL AND
-    job_work_from_home = TRUE
+select skills AS SKILL_NAME,
+        round(avg(salary_year_avg),0) as pay_scale_per_skill
+from 
+    job_postings_fact
+inner join skills_job_dim on skills_job_dim.job_id=job_postings_fact.job_id
+inner join skills_dim on skills_dim.skill_id=skills_job_dim.skill_id
+where
+     job_title_short ='Data Analyst' and salary_year_avg is not NULL
 GROUP BY
-    skills
-ORDER BY
-    avg_salary DESC
-LIMIT 25
+     skills
+order by 
+    pay_scale_per_skill DESC
+
 ```
 Here's a breakdown of the top-paying skills for data analysts:
 
@@ -187,41 +184,52 @@ Here's a breakdown of the top-paying skills for data analysts:
 By analyzing both demand and salary data, this query identifies skills that are highly sought after and offer high salaries, providing a strategic focus for skill development.
 
 ```sql
-SELECT
-    skills_dim.skill_id,
-    skills_dim.skills,
-    COUNT(skills_job_dim.skill_id) AS demand_count,
-    ROUND(AVG(job_postings_fact.salary_year_avg), 0) AS avg_salary
-FROM
-    job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-WHERE
-    job_title_short = 'Data Analyst'
-    AND salary_year_avg IS NOT NULL
-    AND job_work_from_home = TRUE
-GROUP BY
-    skills_dim.skill_id
-HAVING
-    COUNT(skills_job_dim.job_id) > 10
-ORDER BY
-    avg_salary DESC,
-    demand_count DESC
-LIMIT 25;
-```
+WITH skill_demand AS (
+    SELECT  
+        skills_dim.skills AS SKILL_NAME,
+        skills_job_dim.skill_id,
+        COUNT(skills_job_dim.job_id) AS DEMAND_COUNT
+    FROM 
+        job_postings_fact
+    INNER JOIN skills_job_dim ON skills_job_dim.job_id = job_postings_fact.job_id
+    INNER JOIN skills_dim ON skills_dim.skill_id = skills_job_dim.skill_id
+    WHERE
+        job_title_short = 'Data Analyst' 
+        AND salary_year_avg IS NOT NULL 
+    GROUP BY
+        skills_dim.skills, skills_job_dim.skill_id
+),
+average_salary AS (
+    SELECT
+        skills_job_dim.skill_id,
+        ROUND(AVG(salary_year_avg), 0) AS pay_scale_per_skill
+    FROM 
+        job_postings_fact
+    INNER JOIN skills_job_dim ON skills_job_dim.job_id = job_postings_fact.job_id
+    INNER JOIN skills_dim ON skills_dim.skill_id = skills_job_dim.skill_id
+    WHERE
+        job_title_short = 'Data Analyst' 
+        AND salary_year_avg IS NOT NULL
+    GROUP BY
+        skills_job_dim.skill_id
+)
+SELECT 
+    skill_demand.skill_id,
+    skill_demand.skill_name,
+    skill_demand.DEMAND_COUNT,
+    average_salary.pay_scale_per_skill
+FROM skill_demand
+INNER JOIN average_salary 
+    ON skill_demand.skill_id = average_salary.skill_id
+where DEMAND_COUNT > 10
+order by 
+    --DEMAND_COUNT desc , 
+    pay_scale_per_skill DESC,
+    DEMAND_COUNT desc 
+limit 25;
 
-| Skill      | Demand Count | Average Salary |
-|------------|---------------|----------------|
-| Go         | 27            | $115,320       |
-| Confluence | 11            | $114,210       |
-| Hadoop     | 22            | $113,193       |
-| Snowflake  | 37            | $112,948       |
-| Azure      | 34            | $111,225       |
-| BigQuery   | 13            | $109,654       |
-| AWS        | 32            | $108,317       |
-| Java       | 17            | $106,906       |
-| SSIS       | 12            | $106,683       |
-| Jira       | 20            | $104,918       |
+```
+![optimal_skills]("D:\SQL_PROJECT_JOB_ANALYSIS\pictures\Screenshot 2024-11-15 130501.png")
 
 *Table of the most optimal skills for Data Analysts, sorted by salary* 
 
